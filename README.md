@@ -1,4 +1,4 @@
-# REIM: Randomization-based Estimation under Inexact Matching
+# REIM: Randomization-Based Estimation Under Inexact Matching
 
 ## Author
 Jianan Zhu and Siyu Heng
