@@ -7,7 +7,7 @@ Jianan Zhu and Siyu Heng
 Jianan Zhu (Email: jz4698@nyu.edu)
 
 ## Description
-REIM is an R package for randomization-based estimation under inexact matching  introduced in Zhu and Heng (2023).
+REIM is an R package for randomization-based estimation under inexact matching introduced in Zhu and Heng (2023).
 
 Before installing this R package, please ensure that you have installed the following two R packages: mvtnorm and VGAM. To install package REIM in R from GitHub, please run the following commands:
 ```{r}
@@ -17,4 +17,4 @@ install_github("zoezhu0826/REIM")
 ```
 
 ## Reference
-Zhu, J., & Heng, S. (2023). Bias Correction for Randomization-Based Estimation in Inexactly Matched Observational Studies. arXiv preprint arXiv:2308.02005.
+Zhu, J. and Heng, S. (2023). Bias Correction for Randomization-Based Estimation in Inexactly Matched Observational Studies. arXiv preprint arXiv:2308.02005.
