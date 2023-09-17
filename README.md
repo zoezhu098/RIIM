@@ -13,7 +13,7 @@ Before installing this R package, please ensure that you have installed the foll
 ```{r}
 install.packages("devtools") 
 library(devtools) 
-install_github("zoezhu0826/REIM")
+install_github("zoezhu098/REIM")
 ```
 
 ## Reference
