@@ -13,8 +13,8 @@ Before installing this R package, please ensure that you have installed the foll
 ```{r}
 install.packages("devtools") 
 library(devtools) 
-install_github("zoezhu098/REIM")
+install_github("zoezhu098/RIIM")
 ```
 
 ## Reference
-Zhu, J. and Heng, S. (2023). Bias Correction for Randomization-Based Estimation in Inexactly Matched Observational Studies. arXiv preprint arXiv:2308.02005.
+
