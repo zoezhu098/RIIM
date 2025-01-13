@@ -1,17 +1,139 @@
 
 # FULL MATCHING
-ATE_CI = function(Y, Z, p1, p2, set.index, treated.index, beta){
-
+ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
+  
+  # Load optmatch
+  library(optmatch)
+  
+  # Smahal function
+  smahal=
+    function(z,X){
+      X<-as.matrix(X)
+      n<-dim(X)[1]
+      rownames(X)<-1:n
+      k<-dim(X)[2]
+      m<-sum(z)
+      for (j in 1:k) X[,j]<-rank(X[,j])
+      cv<-cov(X)
+      vuntied<-var(1:n)
+      rat<-sqrt(vuntied/diag(cv))
+      cv<-diag(rat)%*%cv%*%diag(rat)
+      out<-matrix(NA,m,n-m)
+      Xc<-X[z==0,]
+      Xt<-X[z==1,]
+      rownames(out)<-rownames(X)[z==1]
+      colnames(out)<-rownames(X)[z==0]
+      library(MASS)
+      icov<-ginv(cv)
+      for (i in 1:m) out[i,]<-mahalanobis(Xc,Xt[i,],icov,inverted=T)
+      out
+    }
+  
+  # Add caliper function
+  addcaliper=function(dmat,z,logitp,calipersd=.2,penalty=1000){
+    sd.logitp=sd(logitp)
+    adif=abs(outer(logitp[z==1],logitp[z==0],"-"))
+    adif=(adif-(calipersd*sd.logitp))*(adif>(calipersd*sd.logitp))
+    dmat=dmat+adif*penalty
+    dmat
+  }
+  
+  # Matching
+  propscore.model = glm(Z ~ X, family = 'binomial',x=TRUE,y=TRUE)
+  treated = propscore.model$y
+  Xmat=propscore.model$x[,-1]
+  distmat=smahal(treated,Xmat)
+  logit.propscore=predict(propscore.model)
+  
+  # adding caliper
+  if(caliper == TRUE) {
+    distmat=addcaliper(distmat,treated,logit.propscore,calipersd=.2)
+    subject.index=seq(1,length(treated),1)
+    rownames(distmat)=subject.index[treated==1]
+    colnames(distmat)=subject.index[treated==0]
+    
+    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+  } else {
+    subject.index=seq(1,length(treated),1)
+    rownames(distmat)=subject.index[treated==1]
+    colnames(distmat)=subject.index[treated==0]
+    
+    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+  }
+  
+  treated.subject.index=vector("list",length(treated.index))
+  matched.control.subject.index=vector("list",length(treated.index))
+  matchedset.index=substr(matchvec,start=3,stop=10)
+  matchedset.index.numeric=as.numeric(matchedset.index)
+  subjects.match.order=as.numeric(names(matchvec))
+  matchedset_index = length(unique(matchedset.index.numeric))
+  
+  # total number in each set
+  l <- rep(0,length(treated.subject.index))
+  for(i in 1:length(treated.subject.index)){
+    matched.set.temp=which(matchedset.index.numeric==i)
+    matched.set.temp.indices=subjects.match.order[matched.set.temp]
+    l[i] <- length(matched.set.temp.indices)
+  }
+  
+  # the order of matchvec
+  for(i in 1:length(treated.index)){
+    matched.set.temp=which(matchedset.index.numeric==i)
+    matched.set.temp.indices=subjects.match.order[matched.set.temp]
+    treated.temp.index=which(matched.set.temp.indices %in% treated.index)
+    if(length(treated.temp.index) != 0){
+      treated.subject.index[[i]]=matched.set.temp.indices[treated.temp.index]
+      matched.control.subject.index[[i]]=matched.set.temp.indices[-treated.temp.index]
+    }
+  }
+  
+  # remove null
+  if(sum(sapply(treated.subject.index, is.null)) != 0){
+    treated.subject.index<- treated.subject.index[-which(sapply(treated.subject.index, is.null))]
+    matched.control.subject.index<-matched.control.subject.index[-which(sapply(matched.control.subject.index, is.null))]
+  }
+  
+  # Calculate standardized differences
+  treatedmat = X[Z == 1,]
+  control.b = X[Z == 0,]
+  controlmean.b = apply(control.b,2,mean)
+  treatmean = apply(treatedmat,2,mean)
+  treatvar = apply(treatedmat,2,var)
+  controlvar = apply(control.b, 2, var)
+  stand.diff.before=(treatmean-controlmean.b)/sqrt((treatvar+controlvar)/2)
+  treatedmat.after=matrix(0,nrow=length(matched.control.subject.index),ncol=5)
+  for (i in 1:length(matched.control.subject.index)) {
+    if(length(treated.subject.index[[i]])>1){
+      treatedmat.after[i,]=apply(X[treated.subject.index[[i]],],2,mean)
+    } else {
+      treatedmat.after[i,]=X[treated.subject.index[[i]],]
+    }
+  }
+  controlmat.after=matrix(0,nrow=length(matched.control.subject.index),ncol=5)
+  for (i in 1:length(matched.control.subject.index)) {
+    if(length(matched.control.subject.index[[i]])>1){
+      controlmat.after[i,]=apply(X[matched.control.subject.index[[i]],],2,mean)
+    } else {
+      controlmat.after[i,]=X[matched.control.subject.index[[i]],]
+    }
+  }
+  controlmean.after=apply(controlmat.after,2,mean)
+  treatedmean.after=apply(treatedmat.after,2,mean)
+  stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
+  balance = cbind(stand.diff.before,stand.diff.after)
+  
   # Estimation
   tae_weight = rep(0,length(set.index))
   for (i in 1:length(set.index)) {
     index = set.index[[i]]
     n = length(set.index[[i]])
-    tae = sum(Z[index]*Y[index]/(n*p1[index]))-sum((1-Z[index])*Y[index]/(n*(1-p1[index])))
-    tae_weight[i] = n*tae/length(Z)
+    tae = sum(Z[index]*Y[index]/(n*p[index])-((1-Z[index])*Y[index])/(n*(1-p[index])))
+    tae_weight[i] = n*tae
   }
-  tae_all = sum(tae_weight)
-
+  
+  N = length(Y)
+  tae_all = sum(tae_weight)/N
+  
   # CI
   N = length(Y)
   B = length(set.index)
@@ -21,27 +143,28 @@ ATE_CI = function(Y, Z, p1, p2, set.index, treated.index, beta){
   Q = matrix(0,B,1)
   Q[,1] = 1
   H_Q = Q%*%ginv((t(Q)%*%Q))%*%t(Q)
-  y = rep(0,length(B))
+  I = diag(1,B,B)
+  
+  y = rep(0,length(set.index))
   for(i in seq_along(1:B)){
     index = set.index[[i]]
     ni = length(index)
-    tae = sum((Z[index]*Y[index])/(ni*p2[index]))-sum(((1-Z[index])*Y[index])/(ni*(1-p2[index])))
+    tae = sum((Z[index]*Y[index])/(ni*p[index])-((1-Z[index])*Y[index])/(ni*(1-p[index])))
     y[i] = tae/sqrt(1-H_Q[i,i])
   }
-  I = diag(1,B,B)
   variance = (1/B^2)*t(y)%*%W%*%(I-H_Q)%*%W%*%y
-
+  
   make_interval = function(x,y){
     paste0("[",x,",",y,"]")
   }
-  thre = qnorm(1-beta/2)
+  thre = qnorm(1-alpha/2)
   low = tae_all-thre*sqrt(variance[1,1])
   up = tae_all+thre*sqrt(variance[1,1])
   CI = make_interval(format(low,digits=3),format(up,digits=4))
   variance1 = variance[1,1]
-
-  return(list(CI=CI,Estimate=tae_all,var=variance1,low=low,up=up))
-
+  
+  return(list(CI=CI,Estimate=tae_all,var=variance1,low=low,up=up,balance=balance))
+  
 }
 
 
