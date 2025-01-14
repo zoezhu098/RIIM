@@ -1,35 +1,41 @@
-\name{REIM_ATE}
-\alias{REIM_ATE}
+\name{ATE_CI}
+\alias{ATE_CI}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{The bias-corrected difference-in-means estimator for the average treatment effect}
+\title{The inverse post-matching probability weighting (IPPW) estimator for the average treatment effect}
 \description{
-The bias-corrected difference-in-means estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2023).
+The inverse post-matching probability weighting (IPPW) estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
 }
 
 \usage{
-REIM_ATE(Y, Z, e, gamma = 0.1, group.index, alpha)
+ATE_CI = function(Y, Z, X, p, caliper = TRUE, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{The observed outcome vector.}
   \item{Z}{The treatment indicator vector.}
-  \item{e}{The estimated propensity score vector.}
-  \item{gamma}{Prespecified small number. The default is 0.1.}
-  \item{group.index}{The matched set index vector.}
+  \item{X}{The covariates matrix.}
+  \item{p}{The propensity score vector.}
+  \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
 }
 
 \value{
-  \item{Estimate}{The bias-corrected estimation of the average treatment effect.}
-  \item{CI}{The bias-corrected confidence interval for the average treatment effect.}
+  \item{estimate}{The estimation for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{var}{The variance for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{low}{The lower bound for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{up}{The upper bound for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{CI}{The confidence interval for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{balance}{The pre- and post-matching covariate balance table.}
 
 }
 \references{
-Zhu, J., & Heng, S. (2023). Bias Correction for Randomization-Based Estimation in Inexactly Matched Observational Studies. arXiv preprint arXiv:2308.02005.
+Zhu, J., Zhang, J., Guo, Z., & Heng, S. (2024). Randomization-Based Inference for Average Treatment Effect in Inexactly Matched Observational Studies. arXiv:2308.02005.
+
+Rosenbaum, P. (1991), ‘A Characterization of Optimal Designs for Observational Studies’, Journal of the Royal Statistical Society, Series B, 53, 597–610.
 }
 \author{
-Jianan Zhu (maintainer, \url{jz4698@nyu.edu}) and Siyu Heng.
+Jianan Zhu (maintainer, \url{jz4698@nyu.edu}), Jeffrey Zhang, Zijian Guo and Siyu Heng.
 }
 \note{
 %%  ~~further notes~~
@@ -41,108 +47,53 @@ Jianan Zhu (maintainer, \url{jz4698@nyu.edu}) and Siyu Heng.
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
+library(VGAM)
+library(xgboost)
+library(mvtnorm)
 
-# Model 2 with average treatment effect
+# Generate data
 set.seed(1)
-data1 <- generate_data(d = 5, n = 2000, C = -2, model.type = "model2", effect.type = "ATE")
+d = 5
+n = 400
+sigma = diag(d)
 
-#function smahal
-smahal=
-  function(z,X){
-  X<-as.matrix(X)
-  n<-dim(X)[1]
-  rownames(X)<-1:n
-  k<-dim(X)[2]
-  m<-sum(z)
-  for (j in 1:k) X[,j]<-rank(X[,j])
-  cv<-cov(X)
-  vuntied<-var(1:n)
-  rat<-sqrt(vuntied/diag(cv))
-  cv<-diag(rat)%*%cv%*%diag(rat)
-  out<-matrix(NA,m,n-m)
-  Xc<-X[z==0,]
-  Xt<-X[z==1,]
-  rownames(out)<-rownames(X)[z==1]
-  colnames(out)<-rownames(X)[z==0]
-  library(MASS)
-  icov<-ginv(cv)
-  for (i in 1:m) out[i,]<-mahalanobis(Xc,Xt[i,],icov,inverted=T)
-  out
+# generate X
+X_d = rmvnorm(n, mean = rep(0,d), sigma = sigma)
+X_d[,4] = rlaplace(n, location = 0, scale = sqrt(2)/2)
+X_d[,5] = rlaplace(n, location = 0, scale = sqrt(2)/2)
+
+# generate Z
+C = -2.5 
+fx = 0.1*(X_d[,1])^3 + 0.3*(X_d[,2]) + 0.2*log((X_d[,3])^2) + 0.1*(X_d[,4]) + 0.2*X_d[,5] + abs(X_d[,1]*X_d[,2]) + (X_d[,3]*X_d[,4])^2 + 0.5*(X_d[,2]*X_d[,4])^2 + rnorm(n,0,1) + C
+p = exp(fx)/(1+exp(fx)) # the probability of receiving the treatment
+Z = rep(0,length(p))
+for(i in seq_along(p)){
+  Z[i] = rbinom(1,1,p[i])
 }
 
-# Fit a propensity score using logistic regression
-Z = data1$Z
-X = data1$X
-Y = data1$R
-e = data1$P
-propscore.model = glm(Z ~ X, family = 'binomial',x=TRUE,y=TRUE)
-treated = propscore.model$y
-Xmat=propscore.model$x[,-1]
-distmat=smahal(treated,Xmat)
-logit.propscore=predict(propscore.model)
-subject.index=seq(1,length(treated),1)
-rownames(distmat)=subject.index[treated==1]
-colnames(distmat)=subject.index[treated==0]
+# generate Y 
+Y_0 = 0.2*(X_d[,1])^3 + 0.2*abs(X_d[,2]) + 0.2*X_d[,3]^3 + 0.5*abs(X_d[,4]) + 0.3*X_d[,5] + rnorm(n,0,1)
+Y_1 = Y_0 + 1 + 0.3*X_d[,1] + 0.2*X_d[,3]^3
+Y = (1-Z)*Y_0 + Z*Y_1
 
-# Full matching
-library(optmatch)
-matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
-treated.index = which(data1$Z == 1)
-treated.subject.index=vector("list",length(treated.index))
-matched.control.subject.index=vector("list",length(treated.index))
-matchedset.index=substr(matchvec,start=3,stop=10)
-matchedset.index.numeric=as.numeric(matchedset.index)
-subjects.match.order=as.numeric(names(matchvec))
-matchedset_index = length(unique(matchedset.index.numeric))
-
-# Total number in each set
-l <- rep(0,length(treated.subject.index))
-for(i in 1:length(treated.subject.index)){
-  matched.set.temp=which(matchedset.index.numeric==i)
-  matched.set.temp.indices=subjects.match.order[matched.set.temp]
-  l[i] <- length(matched.set.temp.indices)
-}
-
-# The order of matchvec
-for(i in 1:length(treated.index)){
-  matched.set.temp=which(matchedset.index.numeric==i)
-  matched.set.temp.indices=subjects.match.order[matched.set.temp]
-  treated.temp.index=which(matched.set.temp.indices %in% treated.index)
-  if(length(treated.temp.index) != 0){
-    treated.subject.index[[i]]=matched.set.temp.indices[treated.temp.index]
-    matched.control.subject.index[[i]]=matched.set.temp.indices[-treated.temp.index]
-  }
-}
-
-#remove null
-if(sum(sapply(treated.subject.index, is.null)) != 0){
-  treated.subject.index<- treated.subject.index[-which(sapply(treated.subject.index, is.null))]
-  matched.control.subject.index<-matched.control.subject.index[-which(sapply(matched.control.subject.index, is.null))]
-}
-
-# Get the group.index
-set = NULL
-for (i in 1:length(treated.subject.index)) {
-  set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
-}
-
-Ni = max(sapply(set,length))
-
-group.index <- rep(0,length(Y))
-for(j in 1:length(Y)){
-  if(Z[j] == 0){
-    group.index[j] <- which(sapply(matched.control.subject.index,function(x){
-      is.element(j,x)
-    }))
-} else if(Z[j] == 1){
-    group.index[j] <- which(sapply(treated.subject.index,function(x){
-      is.element(j,x)
-    }))
-  }
-}
+# Use XGBoost to estimate propensity score
+X = X_d
+df = data.frame(Z,X)
+index_model1 = sample(400,200)
+df1 = df[index_model1,]
+df2 = df[-index_model1,]
+prob_xgb = rep(0,400)
+xgb.model1 = xgboost(data = as.matrix(df1[2:6]), label = df1$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
+prob_xgb[-index_model1] = predict(xgb.model1, as.matrix(df2[2:6]))
+xgb.model2 = xgboost(data = as.matrix(df2[2:6]), label = df2$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
+prob_xgb[index_model1] = predict(xgb.model2, as.matrix(df1[2:6]))
 
 # The estimator
-est = REIM_ATE(Y, Z, e, gamma = 0.1, group.index, alpha = 0.05)[[2]]
+est = ATE_CI(Y,Z,X,prob_xgb,caliper=TRUE,0.05)$estimate
 
 # The Confidene Intervel
-CI = REIM_ATE(Y, Z, e, gamma = 0.1, group.index, alpha = 0.05)[[1]]
+CI = ATE_CI(Y,Z,X,p,caliper=TRUE,0.05)$CI
+
+# The balance table
+balance = ATE_CI(Y,Z,X,p,caliper=TRUE,0.05)$balance
+

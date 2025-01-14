@@ -1,6 +1,6 @@
 
 # FULL MATCHING
-ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
+ATE_CI = function(Y, Z, X, p, caliper = TRUE, alpha){
   
   # Load optmatch
   library(optmatch)
@@ -39,6 +39,7 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
   }
   
   # Matching
+  treated.index = which(Z == 1)
   propscore.model = glm(Z ~ X, family = 'binomial',x=TRUE,y=TRUE)
   treated = propscore.model$y
   Xmat=propscore.model$x[,-1]
@@ -122,11 +123,19 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
   stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
   balance = cbind(stand.diff.before,stand.diff.after)
   
+  p = conditional_p(treated.subject.index,matched.control.subject.index,prob_xgb,0.1)
+  
+  # Create set
+  set = NULL
+  for (i in 1:length(treated.subject.index)) {
+    set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
+  }
+  
   # Estimation
-  tae_weight = rep(0,length(set.index))
-  for (i in 1:length(set.index)) {
-    index = set.index[[i]]
-    n = length(set.index[[i]])
+  tae_weight = rep(0,length(set))
+  for (i in 1:length(set)) {
+    index = set[[i]]
+    n = length(set[[i]])
     tae = sum(Z[index]*Y[index]/(n*p[index])-((1-Z[index])*Y[index])/(n*(1-p[index])))
     tae_weight[i] = n*tae
   }
@@ -136,8 +145,8 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
   
   # CI
   N = length(Y)
-  B = length(set.index)
-  n_vector = sapply(set.index,length)
+  B = length(set)
+  n_vector = sapply(set,length)
   w_vector = B*n_vector/N
   W = diag(w_vector,B,B)
   Q = matrix(0,B,1)
@@ -145,9 +154,9 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
   H_Q = Q%*%ginv((t(Q)%*%Q))%*%t(Q)
   I = diag(1,B,B)
   
-  y = rep(0,length(set.index))
+  y = rep(0,length(set))
   for(i in seq_along(1:B)){
-    index = set.index[[i]]
+    index = set[[i]]
     ni = length(index)
     tae = sum((Z[index]*Y[index])/(ni*p[index])-((1-Z[index])*Y[index])/(ni*(1-p[index])))
     y[i] = tae/sqrt(1-H_Q[i,i])
@@ -163,7 +172,7 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, set.index, treated.index, alpha){
   CI = make_interval(format(low,digits=3),format(up,digits=4))
   variance1 = variance[1,1]
   
-  return(list(CI=CI,Estimate=tae_all,var=variance1,low=low,up=up,balance=balance))
+  return(list(estimate=tae_all,var=variance1,low=low,up=up,CI=CI,balance=balance))
   
 }
 
