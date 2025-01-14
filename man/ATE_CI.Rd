@@ -21,11 +21,11 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, alpha)
 }
 
 \value{
-  \item{estimate}{The estimation for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
-  \item{var}{The variance for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
-  \item{low}{The lower bound for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
-  \item{up}{The upper bound for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
-  \item{CI}{The confidence interval for the average treatment effect on the inverse post-matching probability weighting (IPPW) estimator.}
+  \item{estimate}{The estimation for the average treatment effect on the IPPW estimator.}
+  \item{var}{The variance for the average treatment effect on the IPPW estimator.}
+  \item{low}{The lower bound for the average treatment effect on the IPPW estimator.}
+  \item{up}{The upper bound for the average treatment effect on the IPPW estimator.}
+  \item{CI}{The confidence interval for the average treatment effect on the IPPW estimator.}
   \item{balance}{The pre- and post-matching covariate balance table.}
 
 }
