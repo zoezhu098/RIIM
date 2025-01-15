@@ -1,16 +1,12 @@
-\name{REIM_constant}
-\alias{REIM_constant}
+\name{conditional_p}
+\alias{conditional_p}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The bias-corrected maximum p-value estimator for the constant effect}
 \description{
 The bias-corrected maximum p-value estimator for randomization-based estimation and inference for an additive constant effect under inexact matching, proposed in Zhu and Heng (2023).
 }
 \usage{
-REIM_constant(Y, Z, e, beta_low, beta_up,
-           group.index,
-           type = c("exact","CLT"),
-           K = 10000,
-           test = c("t-test","rank-sum"), alpha, q = NULL)
+conditional_p = function(treated.subject.index,matched.control.subject.index,p,alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
