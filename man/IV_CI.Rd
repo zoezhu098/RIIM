@@ -1,34 +1,34 @@
-\name{ATE_CI}
-\alias{ATE_CI}
+\name{IV_CI}
+\alias{IV_CI}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{The inverse post-matching probability weighting (IPPW) estimator for the average treatment effect}
+\title{The bias-corrected Wald estimator for for the complier average treatment effect}
 \description{
-The inverse post-matching probability weighting (IPPW) estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
+The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
 }
-
 \usage{
-ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha)
+IV_CI = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{The observed outcome vector.}
-  \item{Z}{The treatment indicator vector.}
+  \item{Z}{The instrument vector.}
   \item{X}{The covariates matrix.}
+  \item{D}{The treatment indicator vector.}
   \item{prob}{The propensity score vector.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
-  \item{dim}{Whether using difference-in-means estimator to estimate the average treatment effect. The default is FALSE.}
   \item{gamma}{Prespecified small number. The default is 0.1.}
+  \item{lambda}{The candidate vector for the complier average treatment effect.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
 }
 
 \value{
   \item{estimate}{The estimation for the average treatment effect on the IPPW estimator.}
-  \item{var}{The variance for the average treatment effect on the IPPW estimator.}
-  \item{low}{The lower bound for the average treatment effect on the IPPW estimator.}
-  \item{up}{The upper bound for the average treatment effect on the IPPW estimator.}
   \item{CI}{The confidence interval for the average treatment effect on the IPPW estimator.}
+  \item{value}{The corresponding z-scores for all the lambda provided.}
   \item{balance}{The pre- and post-matching covariate balance table.}
+
+
 
 }
 \references{
@@ -37,7 +37,7 @@ Zhu, J., Zhang, J., Guo, Z., & Heng, S. (2024). Randomization-Based Inference fo
 Rosenbaum, P. (1991), ‘A Characterization of Optimal Designs for Observational Studies’, Journal of the Royal Statistical Society, Series B, 53, 597–610.
 }
 \author{
-Jianan Zhu (maintainer, \url{jz4698@nyu.edu}), Jeffrey Zhang, Zijian Guo and Siyu Heng.
+Jianan Zhu (maintainer, \url{jz4698@nyu.edu}) and Siyu Heng.
 }
 \note{
 %%  ~~further notes~~
@@ -74,10 +74,23 @@ for(i in seq_along(p)){
   Z[i] = rbinom(1,1,p[i])
 }
 
-# generate Y 
-Y_0 = 0.2*(X_d[,1])^3 + 0.2*abs(X_d[,2]) + 0.2*X_d[,3]^3 + 0.5*abs(X_d[,4]) + 0.3*X_d[,5] + rnorm(n,0,1)
-Y_1 = Y_0 + 1 + 0.3*X_d[,1] + 0.2*X_d[,3]^3
-Y = (1-Z)*Y_0 + Z*Y_1
+#joint distribution
+matrix = matrix(c(1,0.8,0.8,1),2,2)
+sigma = mvrnorm(n,c(0,0),matrix)
+  
+# generate the treatment effect D:
+fx_D0 = 0.7*X_d[,1] + 0.4*sin(X_d[,2]) + 0.4*abs(X_d[,3]) + 0.6*X_d[,4] + 0.1*X_d[,5] + 0.3*X_d[,3]*X_d[,4] - 1 + sigma[,1]
+ibu <- rnorm(n,0,1)
+D_0 = ifelse(fx_D0>ibu,1,0)
+  
+fx_D1 = fx_D0 + 2 + 0.8*X_d[,2]^2
+D_1 = ifelse(fx_D1>ibu,1,0)
+D = (1-Z)*D_0 + Z*D_1
+  
+# generate continuous outcome Y:
+Y_0 = 0.4*(X_d[,1])^2 + 0.1*abs(X_d[,2]) + 0.1*X_d[,3]^2 + 0.2*cos(X_d[,4]) + 0.5*sin(X_d[,5]) + sigma[,2]
+Y_1 = Y_0 + 1 + 0.1*X_d[,1] + 0.3*X_d[,3]^2
+Y = (1-D)*Y_0 + D*Y_1
 
 # Use XGBoost to estimate propensity score
 X = X_d
@@ -92,11 +105,37 @@ xgb.model2 = xgboost(data = as.matrix(df2[2:6]), label = df2$Z, nrounds = 2, obj
 prob_xgb[index_model1] = predict(xgb.model2, as.matrix(df1[2:6]))
 
 # The estimation
-est = ATE_CI(Y,Z,X,prob_xgb,caliper=TRUE,dim=FALSE,gamma=0.1,0.05)$estimate
+est = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$estimate
 
 # The Confidene Intervel
-CI = ATE_CI(Y,Z,X,prob_xgb,caliper=TRUE,dim=FALSE,gamma=0.1,0.05)$CI
+CI = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$CI
 
 # The balance table
-balance = ATE_CI(Y,Z,X,prob_xgb,caliper=TRUE,dim=FALSE,gamma=0.1,0.05)$balance
+balance = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$balance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

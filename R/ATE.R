@@ -1,6 +1,6 @@
 
 # FULL MATCHING
-ATE_CI = function(Y, Z, X, p, caliper = TRUE, alpha){
+ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = TRUE, gamma = 0.1, alpha){
   
   # Load optmatch
   library(optmatch)
@@ -123,7 +123,20 @@ ATE_CI = function(Y, Z, X, p, caliper = TRUE, alpha){
   stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
   balance = cbind(stand.diff.before,stand.diff.after)
   
-  p = conditional_p(treated.subject.index,matched.control.subject.index,prob_xgb,0.1)
+  if(dim == TRUE){
+    p = rep(0,length(Y))
+    for (i in 1:length(treated.subject.index)) {
+      index = c(treated.subject.index[[i]],matched.control.subject.index[[i]])
+      n = length(index)
+      if(length(treated.subject.index[[i]]) == 1) {
+        p[index] = 1/n
+      } else if(length(matched.control.subject.index[[i]]) == 1 & length(treated.subject.index) > 1) {
+        p[index] = 1-(1/n)
+      }
+    }
+  } else if(dim == FALSE){
+    p = conditional_p(treated.subject.index,matched.control.subject.index,prob,gamma)
+  }
   
   # Create set
   set = NULL

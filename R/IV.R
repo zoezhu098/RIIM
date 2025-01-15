@@ -1,6 +1,6 @@
 
 # bias corrected estimator for the effect ratio
-IV_CI <- function(Y, Z, X, D, p, caliper = TRUE, set.index, treated.index, lambda, alpha){
+IV_CI <- function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha){
   
   # Load optmatch
   library(optmatch)
@@ -39,6 +39,7 @@ IV_CI <- function(Y, Z, X, D, p, caliper = TRUE, set.index, treated.index, lambd
   }
   
   # Matching
+  treated.index = which(Z == 1)
   propscore.model = glm(Z ~ X, family = 'binomial',x=TRUE,y=TRUE)
   treated = propscore.model$y
   Xmat=propscore.model$x[,-1]
@@ -122,6 +123,14 @@ IV_CI <- function(Y, Z, X, D, p, caliper = TRUE, set.index, treated.index, lambd
   stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
   balance = cbind(stand.diff.before,stand.diff.after)
   
+  p = conditional_p(treated.subject.index,matched.control.subject.index,prob,gamma)
+  
+  # Create set
+  set = NULL
+  for (i in 1:length(treated.subject.index)) {
+    set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
+  }
+  
   # Estimation
   nume = (Y*(Z-p))/(p*(1-p))
   deno = (D*(Z-p))/(p*(1-p))
@@ -130,15 +139,15 @@ IV_CI <- function(Y, Z, X, D, p, caliper = TRUE, set.index, treated.index, lambd
   # Confidence interval
   value = rep(0,length(lambda))
   for (m in 1:length(lambda)) {
-    V_i = rep(0,length(set.index))
-    for (i in 1:length(set.index)) {
-      index = set.index[[i]]
-      n_i = length(set.index[[i]])
+    V_i = rep(0,length(set))
+    for (i in 1:length(set)) {
+      index = set[[i]]
+      n_i = length(set[[i]])
       V_i[i] = sum(Z[index]*(Y[index]-lambda[m]*D[index])/p[index])-sum((1-Z[index])*(Y[index]-lambda[m]*D[index])/(1-p[index])) 
     }
     
-    T_lambda = sum(V_i)/length(set.index)
-    variance_lambda = sum((V_i-T_lambda)^2)/(length(set.index)*(length(set.index)-1)) 
+    T_lambda = sum(V_i)/length(set)
+    variance_lambda = sum((V_i-T_lambda)^2)/(length(set)*(length(set)-1)) 
     value[m] = T_lambda/sqrt(variance_lambda)
   }
   
@@ -150,7 +159,7 @@ IV_CI <- function(Y, Z, X, D, p, caliper = TRUE, set.index, treated.index, lambd
   upper = tail(lambda[which(value >= -thre & value <= thre)],1)
   CI = make_interval(format(lower,digits=3),format(upper,digits=4))
   
-  return(list(Estimate=lambda_est_bc,CI=CI,value=value,balance=balance))
+  return(list(estimate=lambda_est_bc,CI=CI,value=value,balance=balance))
 }
 
   
