@@ -1,7 +1,7 @@
 Package: RIIM
 Type: Package
 Title: REIM: Randomization-Based Estimation Under Inexact Matching
-Version: 0.1.0
+Version: 0.2.0
 Author: Jianan Zhu and Siyu Heng
 Maintainer: Jianan Zhu <jz4698@nyu.edu>
 Description: RIIM is an R package for randomization-based inference under inexact matching introduced in Zhu and Heng (2024).
