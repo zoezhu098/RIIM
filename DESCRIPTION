@@ -1,6 +1,6 @@
 Package: RIIM
 Type: Package
-Title: REIM: Randomization-Based Estimation Under Inexact Matching
+Title: RIIM: Randomization-Based Estimation Under Inexact Matching
 Version: 0.2.0
 Author: Jianan Zhu and Siyu Heng
 Maintainer: Jianan Zhu <jz4698@nyu.edu>
