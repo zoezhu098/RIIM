@@ -1,9 +1,6 @@
 
 # FULL MATCHING
-ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = TRUE, gamma = 0.1, alpha){
-  
-  # Load optmatch
-  library(optmatch)
+IPPW = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha){
   
   # Smahal function
   smahal=

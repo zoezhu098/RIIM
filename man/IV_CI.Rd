@@ -1,7 +1,7 @@
 \name{IV_CI}
 \alias{IV_CI}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{The bias-corrected Wald estimator for for the complier average treatment effect}
+\title{The bias-corrected Wald estimator for the complier average treatment effect}
 \description{
 The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
 }
@@ -17,7 +17,7 @@ IV_CI = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
   \item{prob}{The propensity score vector.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
   \item{gamma}{Prespecified small number. The default is 0.1.}
-  \item{lambda}{The candidate vector for the complier average treatment effect.}
+  \item{lambda}{The search region for the point estimate.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
 }

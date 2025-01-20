@@ -6,19 +6,19 @@
 This function is conducted for regularizing post-matching probabilities to avoid non-informative confidence intervals and large sample variance, proposed in Zhu and Heng (2024).
 }
 \usage{
-conditional_p = function(treated.subject.index,matched.control.subject.index,p,alpha=0.1)
+conditional_p = function(treated.subject.index,matched.control.subject.index,p,gamma=0.1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{treated.subject.index}{The index list for treated subjects after matching.}
   \item{matched.control.subject.index}{The index list for control subjects after matching.}
-  \item{p}{The estimated propensity score vector.}
-  \item{alpha}{Prespecified small number. The default is 0.1.}
+  \item{p}{The propensity score vector.}
+  \item{gamma}{Prespecified small number. The default is 0.1.}
 
 }
 
 \value{
-  \item{prob}{The regularized post-matching probabilities.}
+  \item{prob}{The regularized post-matching probabilities vector.}
 
 
 }

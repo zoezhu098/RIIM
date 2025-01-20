@@ -1,6 +1,6 @@
 
 # bias corrected estimator for the effect ratio
-IV_CI <- function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha){
+IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha){
   
   # Load optmatch
   library(optmatch)
