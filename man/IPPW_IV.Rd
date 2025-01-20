@@ -105,13 +105,13 @@ xgb.model2 = xgboost(data = as.matrix(df2[2:6]), label = df2$Z, nrounds = 2, obj
 prob_xgb[index_model1] = predict(xgb.model2, as.matrix(df1[2:6]))
 
 # The estimation
-est = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$estimate
+est = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$estimate
 
 # The Confidene Intervel
-CI = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$CI
+CI = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$CI
 
 # The balance table
-balance = IV_CI(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$balance
+balance = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$balance
 
 
 
