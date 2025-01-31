@@ -1,7 +1,7 @@
 
 # FULL MATCHING
 IPPW = function(Y, Z, X, prob, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
-  
+
   # Smahal function
   smahal=
     function(z,X){

@@ -1,9 +1,6 @@
 
 # bias corrected estimator for the effect ratio
-IPPW_IV <- function(Y, Z, X, D, prob,, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, gamma = 0.1, lambda, alpha){
-  
-  # Load optmatch
-  library(optmatch)
+IPPW_IV <- function(Y, Z, X, D, prob, min.controls = 0.001, max.controls = 10000, caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by, alpha){
   
   # Smahal function
   smahal=
@@ -123,43 +120,98 @@ IPPW_IV <- function(Y, Z, X, D, prob,, min.controls = 0.001,max.controls = 10000
   stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
   balance = cbind(stand.diff.before,stand.diff.after)
   
-  p = conditional_p(treated.subject.index,matched.control.subject.index,prob,gamma)
-  
-  # Create set
-  set = NULL
-  for (i in 1:length(treated.subject.index)) {
-    set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
-  }
-  
-  # Estimation
-  nume = (Y*(Z-p))/(p*(1-p))
-  deno = (D*(Z-p))/(p*(1-p))
-  lambda_est_bc = sum(nume)/sum(deno)
-  
-  # Confidence interval
-  value = rep(0,length(lambda))
-  for (m in 1:length(lambda)) {
-    V_i = rep(0,length(set))
-    for (i in 1:length(set)) {
-      index = set[[i]]
-      n_i = length(set[[i]])
-      V_i[i] = sum(Z[index]*(Y[index]-lambda[m]*D[index])/p[index])-sum((1-Z[index])*(Y[index]-lambda[m]*D[index])/(1-p[index])) 
+  if(classical == TRUE){
+    
+    # Create set
+    set = NULL
+    for (i in 1:length(treated.subject.index)) {
+      set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
     }
     
-    T_lambda = sum(V_i)/length(set)
-    variance_lambda = sum((V_i-T_lambda)^2)/(length(set)*(length(set)-1)) 
-    value[m] = T_lambda/sqrt(variance_lambda)
+    classic_er <- function(treated.subject.index,matched.control.subject.index,Z,D,Y){
+      nume = deno = rep(0,length(treated.subject.index))
+      for (i in 1:length(treated.subject.index)) {
+        index = c(treated.subject.index[[i]],matched.control.subject.index[[i]])
+        n = length(index)
+        m = length(treated.subject.index[[i]])
+        nume[i] = ((n^2)/(m*(n-m)))*sum((Z[index]-mean(Z[index]))*(Y[index]-mean(Y[index])))
+        deno[i] = ((n^2)/(m*(n-m)))*sum((Z[index]-mean(Z[index]))*(D[index]-mean(D[index])))
+      }
+      lambda_est_classic = sum(nume)/sum(deno)
+      return(lambda_est_classic)
+    }
+    
+    # Estimation
+    lambda_class = classic_er(treated.subject.index,matched.control.subject.index,Z,D,Y)
+    
+    # Confidence interval
+    lambda = seq(lower.bound, upper.bound, by)
+    value = rep(0,length(lambda))
+    for (m in 1:length(lambda)) {
+      V_i = rep(0,length(set))
+      for (i in 1:length(set)) {
+        index = set[[i]]
+        n_i = length(set[[i]])
+        m_i = length(treated.subject.index[[i]])
+        V_i[i] = (n_i/m_i)*sum(Z[index]*(Y[index]-lambda[m]*D[index]))-(n_i/(n_i-m_i))*sum((1-Z[index])*(Y[index]-lambda[m]*D[index])) 
+      }
+      
+      T_lambda = sum(V_i)/length(set)
+      variance_lambda = sum((V_i-T_lambda)^2)/(length(set)*(length(set)-1)) 
+      value[m] = T_lambda/sqrt(variance_lambda)
+    }
+    
+    make_interval = function(x,y){
+      paste0("[",x,",",y,"]")
+    }
+    thre = qnorm(1-alpha/2)
+    lower = lambda[which(value >= -thre & value <= thre)][1]
+    upper = tail(lambda[which(value >= -thre & value <= thre)],1)
+    CI = make_interval(format(lower,digits=3),format(upper,digits=4))
+    
+    return(list(estimate=lambda_class,CI=CI,value=value,balance=balance))
+    
+  } else if(classical == FALSE){
+    p = conditional_p(treated.subject.index,matched.control.subject.index,prob,gamma)
+    
+    # Create set
+    set = NULL
+    for (i in 1:length(treated.subject.index)) {
+      set[[i]] = c(unlist(treated.subject.index[[i]]),unlist(matched.control.subject.index[[i]]))
+    }
+    
+    # Estimation
+    nume = (Y*(Z-p))/(p*(1-p))
+    deno = (D*(Z-p))/(p*(1-p))
+    lambda_est_bc = sum(nume)/sum(deno)
+    
+    # Confidence interval
+    lambda = seq(lower.bound, upper.bound, by)
+    value = rep(0,length(lambda))
+    for (m in 1:length(lambda)) {
+      V_i = rep(0,length(set))
+      for (i in 1:length(set)) {
+        index = set[[i]]
+        n_i = length(set[[i]])
+        V_i[i] = sum(Z[index]*(Y[index]-lambda[m]*D[index])/p[index])-sum((1-Z[index])*(Y[index]-lambda[m]*D[index])/(1-p[index])) 
+      }
+      
+      T_lambda = sum(V_i)/length(set)
+      variance_lambda = sum((V_i-T_lambda)^2)/(length(set)*(length(set)-1)) 
+      value[m] = T_lambda/sqrt(variance_lambda)
+    }
+    
+    make_interval = function(x,y){
+      paste0("[",x,",",y,"]")
+    }
+    thre = qnorm(1-alpha/2)
+    lower = lambda[which(value >= -thre & value <= thre)][1]
+    upper = tail(lambda[which(value >= -thre & value <= thre)],1)
+    CI = make_interval(format(lower,digits=3),format(upper,digits=4))
+    
+    return(list(estimate=lambda_est_bc,CI=CI,value=value,balance=balance))
   }
   
-  make_interval = function(x,y){
-    paste0("[",x,",",y,"]")
-  }
-  thre = qnorm(1-alpha/2)
-  lower = lambda[which(value >= -thre & value <= thre)][1]
-  upper = tail(lambda[which(value >= -thre & value <= thre)],1)
-  CI = make_interval(format(lower,digits=3),format(upper,digits=4))
-  
-  return(list(estimate=lambda_est_bc,CI=CI,value=value,balance=balance))
 }
 
   

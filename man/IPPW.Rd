@@ -37,7 +37,15 @@ IPPW = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha)
 \references{
 Zhu, J., Zhang, J., Guo, Z., & Heng, S. (2024). Randomization-Based Inference for Average Treatment Effect in Inexactly Matched Observational Studies. arXiv:2308.02005.
 
+Hansen, B.B. and Klopfer, S.O. (2006), ‘ Optimal full matching and related designs via network flows’, Journal of Computational and Graphical Statistics, 15, 609–627.
+
+Hansen, B.B. (2004), ‘Full Matching in an Observational Study of Coaching for the SAT’, Journal of the American Statistical Association, 99, 609–618.
+
 Rosenbaum, P. (1991), ‘A Characterization of Optimal Designs for Observational Studies’, Journal of the Royal Statistical Society, Series B, 53, 597–610.
+
+Colin B.F. (2018), 'On Mitigating the Analytical Limitations of Finely Stratified Experiments', Journal of the Royal Statistical Society Series B: Statistical Methodology, 80 (5), 1035–1056.
+
+Kang H., Kreuels B., May J., & Small S.D. (2016), 'Full matching approach to instrumental variables estimation with application to the effect of malaria on stunting', The Annals of Applied Statistics, 10 (1), 335-364.
 }
 \author{
 Jianan Zhu (maintainer, \url{jz4698@nyu.edu}), Jeffrey Zhang, Zijian Guo and Siyu Heng.
