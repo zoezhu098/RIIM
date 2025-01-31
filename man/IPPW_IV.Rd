@@ -3,10 +3,10 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The bias-corrected Wald estimator for the complier average treatment effect}
 \description{
-The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
+The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
 }
 \usage{
-IPPW_IV = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
+IPPW_IV = function(Y, Z, X, D, min.controls = 0.001, max.controls = 10000, caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -14,7 +14,6 @@ IPPW_IV = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
   \item{Z}{The instrument vector.}
   \item{X}{The covariates matrix.}
   \item{D}{The treatment indicator vector.}
-  \item{prob}{The propensity score vector.}
   \item{min.control}{The minimum ratio of controls to treatments permitted within a matched set. The default is 0.001.}
   \item{max.control}{The maximum ratio of controls to treatments permitted within a matched set. The default is 10000.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE.}
@@ -107,29 +106,14 @@ Y_0 = 0.4*(X_d[,1])^2 + 0.1*abs(X_d[,2]) + 0.1*X_d[,3]^2 + 0.2*cos(X_d[,4]) + 0.
 Y_1 = Y_0 + 1 + 0.1*X_d[,1] + 0.3*X_d[,3]^2
 Y = (1-D)*Y_0 + D*Y_1
 
-# Use XGBoost to estimate propensity score
-X = X_d
-df = data.frame(Z,X)
-index_model1 = sample(400,200)
-df1 = df[index_model1,]
-df2 = df[-index_model1,]
-prob_xgb = rep(0,400)
-xgb.model1 = xgboost(data = as.matrix(df1[2:6]), label = df1$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
-prob_xgb[-index_model1] = predict(xgb.model1, as.matrix(df2[2:6]))
-xgb.model2 = xgboost(data = as.matrix(df2[2:6]), label = df2$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
-prob_xgb[index_model1] = predict(xgb.model2, as.matrix(df1[2:6]))
-
 # The estimation
-est = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$estimate
+est = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,gamma=0.1,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$estimate
 
 # The Confidene Intervel
-CI = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$CI
+CI = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,gamma=0.1,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$CI
 
 # The balance table
-balance = IPPW_IV(Y,Z,X,D,prob_xgb,caliper=TRUE,gamma=0.1,lambda = seq(0,3,0.01),0.05)$balance
-
-
-
+balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,gamma=0.1,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05),0.05)$balance
 
 
 
