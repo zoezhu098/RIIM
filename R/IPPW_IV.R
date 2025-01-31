@@ -1,6 +1,6 @@
 
 # bias corrected estimator for the effect ratio
-IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha){
+IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, calipersd = 0.2, gamma = 0.1, lambda, alpha){
   
   # Load optmatch
   library(optmatch)
@@ -48,7 +48,7 @@ IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha
   
   # adding caliper
   if(caliper == TRUE) {
-    distmat=addcaliper(distmat,treated,logit.propscore,calipersd=.2)
+    distmat=addcaliper(distmat,treated,logit.propscore,calipersd)
     subject.index=seq(1,length(treated),1)
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]

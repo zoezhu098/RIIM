@@ -1,6 +1,6 @@
 
 # FULL MATCHING
-IPPW = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha){
+IPPW = function(Y, Z, X, prob, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
   
   # Smahal function
   smahal=
@@ -45,7 +45,7 @@ IPPW = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha){
   
   # adding caliper
   if(caliper == TRUE) {
-    distmat=addcaliper(distmat,treated,logit.propscore,calipersd=.2)
+    distmat=addcaliper(distmat,treated,logit.propscore,calipersd)
     subject.index=seq(1,length(treated),1)
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]
