@@ -17,7 +17,7 @@ ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha
   \item{prob}{The propensity score vector.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
   \item{dim}{Whether using difference-in-means estimator to estimate the average treatment effect. The default is FALSE.}
-  \item{gamma}{Prespecified small number. The default is 0.1.}
+  \item{gamma}{The regularization threshold. The default is 0.1.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
 }

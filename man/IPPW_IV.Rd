@@ -16,7 +16,7 @@ IV_CI = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
   \item{D}{The treatment indicator vector.}
   \item{prob}{The propensity score vector.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
-  \item{gamma}{Prespecified small number. The default is 0.1.}
+  \item{gamma}{The regularization threshold. The default is 0.1.}
   \item{lambda}{The search region for the point estimate.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
