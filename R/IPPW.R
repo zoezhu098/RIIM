@@ -1,6 +1,6 @@
 
 # FULL MATCHING
-IPPW = function(Y, Z, X, prob, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
+IPPW = function(Y, Z, X, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
 
   # Smahal function
   smahal=
@@ -119,6 +119,19 @@ IPPW = function(Y, Z, X, prob, min.controls = 0.001,max.controls = 10000, calipe
   treatedmean.after=apply(treatedmat.after,2,mean)
   stand.diff.after=(treatedmean.after-controlmean.after)/sqrt((treatvar+controlvar)/2)
   balance = cbind(stand.diff.before,stand.diff.after)
+  
+  # Use XGBoost to estimate propensity score
+  length_all = length(Z)
+  length_X = ncol(X)
+  df = data.frame(Z,X)
+  index_model1 = sample(length_all,length_all/2)
+  df1 = df[index_model1,]
+  df2 = df[-index_model1,]
+  prob = rep(0,length_all)
+  xgb.model1 = xgboost(data = as.matrix(df1[2:length_X]), label = df1$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
+  prob[-index_model1] = predict(xgb.model1, as.matrix(df2[2:length_X]))
+  xgb.model2 = xgboost(data = as.matrix(df2[2:length_X]), label = df2$Z, nrounds = 2, objective = "binary:logistic",verbose = 0)
+  prob[index_model1] = predict(xgb.model2, as.matrix(df1[2:length_X]))
   
   if(dim == TRUE){
     p = rep(0,length(Y))
