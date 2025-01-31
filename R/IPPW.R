@@ -1,6 +1,6 @@
 
 # FULL MATCHING
-IPPW = function(Y, Z, X, prob, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
+IPPW = function(Y, Z, X, prob, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha){
   
   # Smahal function
   smahal=
@@ -50,13 +50,13 @@ IPPW = function(Y, Z, X, prob, caliper = TRUE, calipersd = 0.2, dim = FALSE, gam
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]
     
-    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+    matchvec=fullmatch(distmat,min.controls,max.controls)
   } else {
     subject.index=seq(1,length(treated),1)
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]
     
-    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+    matchvec=fullmatch(distmat,min.controls,max.controls)
   }
   
   treated.subject.index=vector("list",length(treated.index))

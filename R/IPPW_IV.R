@@ -1,6 +1,6 @@
 
 # bias corrected estimator for the effect ratio
-IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, calipersd = 0.2, gamma = 0.1, lambda, alpha){
+IPPW_IV <- function(Y, Z, X, D, prob,, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, gamma = 0.1, lambda, alpha){
   
   # Load optmatch
   library(optmatch)
@@ -53,13 +53,13 @@ IPPW_IV <- function(Y, Z, X, D, prob, caliper = TRUE, calipersd = 0.2, gamma = 0
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]
     
-    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+    matchvec=fullmatch(distmat,min.controls,max.controls)
   } else {
     subject.index=seq(1,length(treated),1)
     rownames(distmat)=subject.index[treated==1]
     colnames(distmat)=subject.index[treated==0]
     
-    matchvec=fullmatch(distmat,min.controls=0.001,max.controls=10000)
+    matchvec=fullmatch(distmat,min.controls,max.controls)
   }
   
   treated.subject.index=vector("list",length(treated.index))

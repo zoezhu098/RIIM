@@ -1,5 +1,5 @@
-\name{ATE_CI}
-\alias{ATE_CI}
+\name{IPPW}
+\alias{IPPW}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The inverse post-matching probability weighting (IPPW) estimator for the average treatment effect}
 \description{
@@ -7,7 +7,7 @@ The inverse post-matching probability weighting (IPPW) estimator for randomizati
 }
 
 \usage{
-ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha)
+IPPW = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -15,7 +15,10 @@ ATE_CI = function(Y, Z, X, prob, caliper = TRUE, dim = FALSE, gamma = 0.1, alpha
   \item{Z}{The treatment indicator vector.}
   \item{X}{The covariates matrix.}
   \item{prob}{The propensity score vector.}
-  \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
+  \item{min.control}{The minimum ratio of controls to treatments permitted within a matched set. The default is 0.001.}
+  \item{max.control}{The maximum ratio of controls to treatments permitted within a matched set. The default is 10000.}
+  \item{caliper}{Whether adding caliper or not. The default is TRUE.}
+  \item{calipersd}{The standard deviation of the logit propensity score for caliper. The default is 0.2.}
   \item{dim}{Whether using difference-in-means estimator to estimate the average treatment effect. The default is FALSE.}
   \item{gamma}{The regularization threshold. The default is 0.1.}
   \item{alpha}{The prespecified level alpha for the CI.}

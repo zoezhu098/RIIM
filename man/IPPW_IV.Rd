@@ -1,12 +1,12 @@
-\name{IV_CI}
-\alias{IV_CI}
+\name{IPPW_IV}
+\alias{IPPW_IV}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The bias-corrected Wald estimator for the complier average treatment effect}
 \description{
 The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce.
 }
 \usage{
-IV_CI = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
+IPPW_IV = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -15,7 +15,10 @@ IV_CI = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
   \item{X}{The covariates matrix.}
   \item{D}{The treatment indicator vector.}
   \item{prob}{The propensity score vector.}
-  \item{caliper}{Whether adding caliper or not. The default is TRUE. The caliper is 0.2 standard deviation of the logit propensity score.}
+  \item{min.control}{The minimum ratio of controls to treatments permitted within a matched set. The default is 0.001.}
+  \item{max.control}{The maximum ratio of controls to treatments permitted within a matched set. The default is 10000.}
+  \item{caliper}{Whether adding caliper or not. The default is TRUE.}
+  \item{calipersd}{The standard deviation of the logit propensity score for caliper. The default is 0.2.}
   \item{gamma}{The regularization threshold. The default is 0.1.}
   \item{lambda}{The search region for the point estimate.}
   \item{alpha}{The prespecified level alpha for the CI.}
