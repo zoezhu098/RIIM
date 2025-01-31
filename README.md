@@ -9,8 +9,13 @@ Jianan Zhu (Email: jz4698@nyu.edu)
 ## Description
 RIIM is an R package for randomization-based inference for average treatment effects under inexact matching introduced in Zhu and Heng (2024).
 
-Before installing this R package, please ensure that you have installed the following R packages: xgboost, MASS, mvtnorm, VGAM, and optmatch. To install package RIIM in R from GitHub, please run the following commands:
+To install package RIIM in R from GitHub, please run the following commands:
 ```{r}
+library(xgboost)
+library(MASS)
+library(mvtnorm)
+library(VGAM)
+library(optmatch)
 install.packages("devtools") 
 library(devtools) 
 install_github("zoezhu098/RIIM")
