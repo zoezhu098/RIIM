@@ -6,7 +6,7 @@
 The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
 }
 \usage{
-IPPW_IV = function(Y, Z, X, D, min.controls = 0.001, max.controls = 10000, caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by, alpha)
+IPPW_IV = function(Y, Z, X, D, min.controls = 0.001, max.controls = 10000, caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by,alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -114,7 +114,7 @@ est = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,ca
 CI = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$CI
 
 # The balance table
-balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05),0.05)$balance
+balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,calipersd = 0.2,classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$balance
 
 
 
