@@ -19,8 +19,11 @@ IPPW_IV = function(Y, Z, X, D, prob, caliper = TRUE, gamma = 0.1, lambda, alpha)
   \item{max.control}{The maximum ratio of controls to treatments permitted within a matched set. The default is 10000.}
   \item{caliper}{Whether adding caliper or not. The default is TRUE.}
   \item{calipersd}{The standard deviation of the logit propensity score for caliper. The default is 0.2.}
+  \item{classical}{Whether using the classical estimator (proposed by Kang H.(2016)) to estimate the complier average treatment effect. The default is FALSE.}
   \item{gamma}{The regularization threshold. The default is 0.1.}
-  \item{lambda}{The search region for the point estimate.}
+  \item{lower.bound}{The starting value of the search region for the point estimate.}
+  \item{upper.bound}{The end value of the search region for the point estimate.}
+  \item{by}{The increment of the search region for the point estimate.}
   \item{alpha}{The prespecified level alpha for the CI.}
 
 }
