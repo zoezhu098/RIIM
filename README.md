@@ -1,7 +1,7 @@
 # RIIM: Randomization-Based Inference Under Inexact Matching
 
 ## Author
-Jianan Zhu and Siyu Heng
+Jianan Zhu, Jeffrey Zhang, Zijian Guo, and Siyu Heng.
 
 ## Maintainer
 Jianan Zhu (Email: jz4698@nyu.edu)
