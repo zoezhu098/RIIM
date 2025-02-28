@@ -26,7 +26,7 @@ conditional_p = function(treated.subject.index,matched.control.subject.index,p,g
 Zhu, J., Zhang, J., Guo, Z., & Heng, S. (2024). Randomization-Based Inference for Average Treatment Effect in Inexactly Matched Observational Studies. arXiv:2308.02005.
 }
 \author{
-Jianan Zhu (maintainer, \url{jz4698@nyu.edu}) and Siyu Heng.
+Jianan Zhu (maintainer, \url{jz4698@nyu.edu}), Jeffrey Zhang, Zijian Guo and Siyu Heng.
 }
 \note{
 %%  ~~further notes~~
