@@ -120,6 +120,7 @@ CI = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,
 calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$CI
 
 # The balance table
-balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,   calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$balance
+balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,  
+calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$balance
 
 
