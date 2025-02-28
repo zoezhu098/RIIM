@@ -82,7 +82,7 @@ X_d[,5] = rlaplace(n, location = 0, scale = sqrt(2)/2)
 
 # generate Z
 C = -2.5 
-fx = 0.1*(X_d[,1])^3 + 0.3*(X_d[,2]) + 0.2*log((X_d[,3])^2) + \ 
+fx = 0.1*(X_d[,1])^3 + 0.3*(X_d[,2]) + 0.2*log((X_d[,3])^2) +  
 0.1*(X_d[,4]) + 0.2*X_d[,5] + abs(X_d[,1]*X_d[,2]) + (X_d[,3]*X_d[,4])^2 + 0.5*(X_d[,2]*X_d[,4])^2 + rnorm(n,0,1) + C
 p = exp(fx)/(1+exp(fx)) # the probability of receiving the treatment
 Z = rep(0,length(p))
