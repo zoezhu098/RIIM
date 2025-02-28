@@ -3,10 +3,11 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The bias-corrected Wald estimator for the complier average treatment effect}
 \description{
-The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
+The bias-corrected Wald estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu, Zhang, Guo and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
 }
 \usage{
-IPPW_IV = function(Y, Z, X, D, min.controls = 0.001, max.controls = 10000, caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by,alpha)
+IPPW_IV = function(Y, Z, X, D, min.controls = 0.001, max.controls = 10000, 
+caliper = TRUE, calipersd = 0.2, classical = FALSE, gamma = 0.1, lower.bound, upper.bound, by,alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
