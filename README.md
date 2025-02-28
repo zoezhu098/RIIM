@@ -7,7 +7,7 @@ Jianan Zhu, Jeffrey Zhang, Zijian Guo, and Siyu Heng.
 Jianan Zhu (Email: jz4698@nyu.edu)
 
 ## Description
-RIIM is an R package for randomization-based inference for average treatment effects under inexact matching introduced in Zhu and Heng (2024).
+RIIM is an R package for randomization-based inference for average treatment effects under inexact matching introduced in Zhu, Zhang, Guo and Heng (2024).
 
 To install package RIIM in R from GitHub, please run the following commands:
 ```{r}
