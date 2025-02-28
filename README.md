@@ -19,6 +19,7 @@ library(optmatch)
 install.packages("devtools") 
 library(devtools) 
 install_github("zoezhu098/RIIM")
+library(RIIM)
 ```
 
 ## Reference
