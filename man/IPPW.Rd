@@ -3,11 +3,12 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{The inverse post-matching probability weighting (IPPW) estimator for the average treatment effect}
 \description{
-The inverse post-matching probability weighting (IPPW) estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
+The inverse post-matching probability weighting (IPPW) estimator for randomization-based estimation and inference for the average treatment effect under inexact matching, proposed in Zhu, Zhang, Guo and Heng (2024). Optimal full matching is conducted before the estimation and inferencce. The propensity scores are estimated by XGBoost in function.
 }
 
 \usage{
-IPPW = function(Y, Z, X, min.controls = 0.001,max.controls = 10000, caliper = TRUE, calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha)
+IPPW = function(Y, Z, X, min.controls = 0.001,max.controls = 10000, caliper = TRUE,   
+calipersd = 0.2, dim = FALSE, gamma = 0.1, alpha)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -78,7 +79,8 @@ X_d[,5] = rlaplace(n, location = 0, scale = sqrt(2)/2)
 
 # generate Z
 C = -2.5 
-fx = 0.1*(X_d[,1])^3 + 0.3*(X_d[,2]) + 0.2*log((X_d[,3])^2) + 0.1*(X_d[,4]) + 0.2*X_d[,5] + abs(X_d[,1]*X_d[,2]) + (X_d[,3]*X_d[,4])^2 + 0.5*(X_d[,2]*X_d[,4])^2 + rnorm(n,0,1) + C
+fx = 0.1*(X_d[,1])^3 + 0.3*(X_d[,2]) + 0.2*log((X_d[,3])^2) + 0.1*(X_d[,4]) +  
+0.2*X_d[,5] + abs(X_d[,1]*X_d[,2]) + (X_d[,3]*X_d[,4])^2 + 0.5*(X_d[,2]*X_d[,4])^2 + rnorm(n,0,1) + C
 p = exp(fx)/(1+exp(fx)) # the probability of receiving the treatment
 Z = rep(0,length(p))
 for(i in seq_along(p)){
@@ -86,16 +88,20 @@ for(i in seq_along(p)){
 }
 
 # generate Y 
-Y_0 = 0.2*(X_d[,1])^3 + 0.2*abs(X_d[,2]) + 0.2*X_d[,3]^3 + 0.5*abs(X_d[,4]) + 0.3*X_d[,5] + rnorm(n,0,1)
+Y_0 = 0.2*(X_d[,1])^3 + 0.2*abs(X_d[,2]) + 0.2*X_d[,3]^3 + 0.5*abs(X_d[,4]) +   
+0.3*X_d[,5] + rnorm(n,0,1)
 Y_1 = Y_0 + 1 + 0.3*X_d[,1] + 0.2*X_d[,3]^3
 Y = (1-Z)*Y_0 + Z*Y_1
 
 # The estimation
-est = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$estimate
+est = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
+calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$estimate
 
 # The Confidene Intervel
-CI = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$CI
+CI = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
+calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$CI
 
 # The balance table
-balance = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$balance
+balance = IPPW(Y,Z,X,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
+calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$balance
 
