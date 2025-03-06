@@ -1,6 +1,6 @@
 
 # calculate the conditional probability
-conditional_p <- function(treated.subject.index,matched.control.subject.index,p,alpha){
+conditional_p <- function(treated.subject.index,matched.control.subject.index,p,alpha=0.1){
   
   prob = rep(0,length(p))
   for (i in 1:length(treated.subject.index)) {
