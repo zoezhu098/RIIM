@@ -97,11 +97,15 @@ Y = (1-Z)*Y_0 + Z*Y_1
   
   # Matching
   treated.index = which(Z == 1)
-  propscore.model = glm(Z ~ X, family = 'binomial',x=TRUE,y=TRUE)
+  propscore.model = glm(Z ~ X_d, family = 'binomial',x=TRUE,y=TRUE)
   treated = propscore.model$y
   Xmat=propscore.model$x[,-1]
   distmat=smahal(treated,Xmat)
   logit.propscore=predict(propscore.model)
+  subject.index=seq(1,length(treated),1)
+  rownames(distmat)=subject.index[treated==1]
+  colnames(distmat)=subject.index[treated==0]
+  matchvec=fullmatch(distmat,min.controls=0.0001,max.controls=10000)
   treated.subject.index=vector("list",length(treated.index))
   matched.control.subject.index=vector("list",length(treated.index))
   matchedset.index=substr(matchvec,start=3,stop=10)
@@ -136,8 +140,8 @@ Y = (1-Z)*Y_0 + Z*Y_1
 
 # Use XGBoost to estimate propensity score
   length_all = length(Z)
-  length_X = ncol(X)
-  df = data.frame(Z,X)
+  length_X = ncol(X_d)
+  df = data.frame(Z,X_d)
   index_model1 = sample(length_all,length_all/2)
   df1 = df[index_model1,]
   df2 = df[-index_model1,]
@@ -148,5 +152,5 @@ Y = (1-Z)*Y_0 + Z*Y_1
   prob[index_model1] = predict(xgb.model2, as.matrix(df1[2:length_X]))
   
   # calculate the post-matching treatment assignment probabilities
-  p = conditional_p(treated.subject.index,matched.control.subject.index,prob,alpha)
+  p = conditional_p(treated.subject.index,matched.control.subject.index,prob,alpha=0.1)
 
