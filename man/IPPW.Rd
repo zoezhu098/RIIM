@@ -93,15 +93,19 @@ Y_0 = 0.2*(X_d[,1])^3 + 0.2*abs(X_d[,2]) + 0.2*X_d[,3]^3 + 0.5*abs(X_d[,4]) +
 Y_1 = Y_0 + 1 + 0.3*X_d[,1] + 0.2*X_d[,3]^3
 Y = (1-Z)*Y_0 + Z*Y_1
 
+options(warn=-1)
 # The estimation
 est = IPPW(Y,Z,X_d,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$estimate
+est
 
 # The confidene intervel
 CI = IPPW(Y,Z,X_d,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$CI
+CI
 
 # The balance table
 balance = IPPW(Y,Z,X_d,min.controls = 0.001,max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2,dim=FALSE,gamma=0.1,alpha=0.05)$balance
+balance
 

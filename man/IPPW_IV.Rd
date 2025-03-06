@@ -111,16 +111,19 @@ Y_0 = 0.4*(X_d[,1])^2 + 0.1*abs(X_d[,2]) + 0.1*X_d[,3]^2 + 0.2*cos(X_d[,4]) +
 Y_1 = Y_0 + 1 + 0.1*X_d[,1] + 0.3*X_d[,3]^2
 Y = (1-D)*Y_0 + D*Y_1
 
+options(warn=-1)
 # The estimation
 est = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$estimate
+est
 
 # The Confidene Intervel
 CI = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$CI
+CI
 
 # The balance table
 balance = IPPW_IV(Y,Z,X,D,min.controls = 0.001, max.controls = 10000,caliper=TRUE,  
 calipersd = 0.2, classical = FALSE,gamma = 0.1,lower.bound=0,upper.bound=3,by=0.01,alpha=0.05)$balance
-
+balance
 
