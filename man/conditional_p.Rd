@@ -123,14 +123,14 @@ Y = (1-Z)*Y_0 + Z*Y_1
   
   # the order of matchvec
   for(i in 1:length(treated.index)){
-    matched.set.temp=which(matchedset.index.numeric==i)
-    matched.set.temp.indices=subjects.match.order[matched.set.temp]
-    treated.temp.index=which(matched.set.temp.indices %in% treated.index)
-    if(length(treated.temp.index) != 0){
-      treated.subject.index[[i]]=matched.set.temp.indices[treated.temp.index]
-      matched.control.subject.index[[i]]=matched.set.temp.indices[-treated.temp.index]
-    }
+  matched.set.temp=which(matchedset.index.numeric==i)
+  matched.set.temp.indices=subjects.match.order[matched.set.temp]
+  treated.temp.index=which(matched.set.temp.indices %in% treated.index)
+  if(length(treated.temp.index) != 0){
+    treated.subject.index[[i]]=matched.set.temp.indices[treated.temp.index]
+    matched.control.subject.index[[i]]=matched.set.temp.indices[-treated.temp.index]
   }
+}
   
   # remove null
   if(sum(sapply(treated.subject.index, is.null)) != 0){
