@@ -83,7 +83,7 @@ Y = (1-Z)*Y_0 + Z*Y_1
       cv<-cov(X)
       vuntied<-var(1:n)
       rat<-sqrt(vuntied/diag(cv))
-      cv<-diag(rat)%*%cv%*%diag(rat)
+      cv<-diag(rat)\%*\%cv\%*\%diag(rat)
       out<-matrix(NA,m,n-m)
       Xc<-X[z==0,]
       Xt<-X[z==1,]
@@ -125,7 +125,7 @@ Y = (1-Z)*Y_0 + Z*Y_1
   for(i in 1:length(treated.index)){
   matched.set.temp=which(matchedset.index.numeric==i)
   matched.set.temp.indices=subjects.match.order[matched.set.temp]
-  treated.temp.index=which(matched.set.temp.indices %in% treated.index)
+  treated.temp.index=which(matched.set.temp.indices \%in\% treated.index)
   if(length(treated.temp.index) != 0){
     treated.subject.index[[i]]=matched.set.temp.indices[treated.temp.index]
     matched.control.subject.index[[i]]=matched.set.temp.indices[-treated.temp.index]
